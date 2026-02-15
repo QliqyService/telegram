@@ -1,0 +1,43 @@
+name: Build & Publish  image
+
+on:
+  push:
+    branches: [ dev ]
+    paths:
+      - "app/**"
+      - ".deployment/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/actions/**"
+      - ".github/workflows/telegram-build.yml"
+  workflow_dispatch: {}
+
+jobs:
+  build-telegram:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare image tags
+        id: meta
+        run: |
+          echo "IMAGE_TAG=latest" >> $GITHUB_OUTPUT
+          echo "COMMIT_TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          echo "TIMESTAMP_TAG=$(date -u +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Build & push telegram image
+        uses: ./.github/actions/build
+        with:
+          image: ghcr.io/qliqy/telegram
+          image-tag: ${{ steps.meta.outputs.IMAGE_TAG }}
+          commit-tag: ${{ steps.meta.outputs.COMMIT_TAG }}
+          image-timestamp-tag: ${{ steps.meta.outputs.TIMESTAMP_TAG }}
+          context: .
+          dockerfile: .deployment/Dockerfile
+          build-args: ""
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
