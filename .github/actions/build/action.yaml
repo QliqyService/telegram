@@ -11,7 +11,7 @@ inputs:
     description: Tag with commit hash
     required: true
   image-date-tag:
-    description: Tag with timestamp
+    description: Tag with date
     required: true
   context:
     description: Docker context path
@@ -50,6 +50,6 @@ runs:
         tags: |
           ${{ inputs.image }}:${{ inputs.commit-tag }}
           ${{ inputs.image }}:${{ inputs.image-tag }}
-          ${{ inputs.image }}:${{ inputs.image-timestamp-tag }}
+          ${{ inputs.image }}:${{ inputs.image-date-tag }}
         cache-from: type=registry,ref=${{ inputs.image }}:buildcache-${{ inputs.image-tag }}
         cache-to: type=registry,ref=${{ inputs.image }}:buildcache-${{ inputs.image-tag }},mode=max
