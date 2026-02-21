@@ -1,4 +1,4 @@
-name: Build & Publish webapi image
+name: Build & Publish telegram image
 
 on:
   push:

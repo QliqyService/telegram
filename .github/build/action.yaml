@@ -10,7 +10,7 @@ inputs:
   commit-tag:
     description: Tag with commit hash
     required: true
-  image-timestamp-tag:
+  image-date-tag:
     description: Tag with timestamp
     required: true
   context:
