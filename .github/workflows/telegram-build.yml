@@ -9,11 +9,11 @@ on:
       - "pyproject.toml"
       - "uv.lock"
       - ".github/actions/**"
-      - ".github/workflows/webapi-build.yml"
+      - ".github/workflows/telegram-build.yml"
   workflow_dispatch: {}
 
 jobs:
-  build-webapi:
+  build-telegram:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -42,7 +42,7 @@ jobs:
 
           echo "COMMIT_TAG=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
-      - name: Build & push webapi image
+      - name: Build & push telegram image
         uses: ./.github/actions/build
         with:
           image: ghcr.io/qliqyservice/telegram
