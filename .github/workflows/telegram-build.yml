@@ -1,19 +1,19 @@
-name: Build & Publish  image
+name: Build & Publish telegram image
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ dev, main ]
     paths:
       - "app/**"
       - ".deployment/**"
       - "pyproject.toml"
       - "uv.lock"
       - ".github/actions/**"
-      - ".github/workflows/telegram-build.yml"
+      - ".github/workflows/webapi-build.yml"
   workflow_dispatch: {}
 
 jobs:
-  build-telegram:
+  build-webapi:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,18 +25,31 @@ jobs:
 
       - name: Prepare image tags
         id: meta
+        shell: bash
         run: |
-          echo "IMAGE_TAG=latest" >> $GITHUB_OUTPUT
-          echo "COMMIT_TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-          echo "TIMESTAMP_TAG=$(date -u +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            BRANCH_BASED_TAG="stable"
+          else
+            BRANCH_BASED_TAG="latest"
+          fi
+          echo "BRANCH_BASED_TAG=${BRANCH_BASED_TAG}" >> "$GITHUB_OUTPUT"
 
-      - name: Build & push telegram image
+          IMAGE_DATE_TAG="$(date -u +'%Y.%m.%d')"
+          echo "IMAGE_DATE_TAG=${IMAGE_DATE_TAG}" >> "$GITHUB_OUTPUT"
+
+          IMAGE_TAG="${IMAGE_DATE_TAG}-${BRANCH_BASED_TAG}"
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+
+          echo "COMMIT_TAG=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Build & push webapi image
         uses: ./.github/actions/build
         with:
-          image: ghcr.io/qliqy/telegram
+          image: ghcr.io/qliqyservice/telegram
+          branch-based-tag: ${{ steps.meta.outputs.BRANCH_BASED_TAG }}
+          image-date-tag: ${{ steps.meta.outputs.IMAGE_DATE_TAG }}
           image-tag: ${{ steps.meta.outputs.IMAGE_TAG }}
           commit-tag: ${{ steps.meta.outputs.COMMIT_TAG }}
-          image-timestamp-tag: ${{ steps.meta.outputs.TIMESTAMP_TAG }}
           context: .
           dockerfile: .deployment/Dockerfile
           build-args: ""
