@@ -34,6 +34,7 @@ class Application(FastAPI):
     def run_startup_actions(self) -> None:
         self.add_middlewares()
         self.include_routers()
+        self.include_router(shared_router)
         self.add_startup_event_handlers()
 
     def mount_static(self) -> None:
