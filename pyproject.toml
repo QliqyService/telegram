@@ -2,7 +2,7 @@
 name = "qliqy-telegram"
 version = "0.1.0"
 description = "Qliqy | Telegram Services"
-authors = [{name = "Ernesto", email = "berezin.505@gmail.com"}]
+authors = [{name = "Ernesto", email = "berezin.505@gmail.com"}, { name = "ilia2003", email= "fedorenkoilia@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
