@@ -1,3 +1,5 @@
+from html import escape
+
 from faststream.rabbit import RabbitQueue, RabbitRouter
 from loguru import logger as LOGGER
 
@@ -26,13 +28,19 @@ async def on_comment_created(event: dict) -> None:
     if not comment_author_last_name:
         comment_author_last_name = ""
 
+    safe_form_public_url = escape(str(form_public_url or "-"))
+    safe_comment_title = escape(str(comment_title or "-"))
+    safe_comment_text = escape(str(comment_text or "-"))
+    safe_created_at = escape(str(created_at or "-"))
+    safe_author = escape(f"{comment_author_first_name} {comment_author_last_name}".strip() or "Anonymous User")
+
     text = (
         "📝 <b>New comment</b>\n\n"
-        f"<b>Form:</b> <code>{form_public_url}</code>\n"
-        f"<b>Comment Title:</b><code>{comment_title}</code>"
-        f"<b>Comment:</b> {comment_text}\n"
-        f"<b>At:</b> {created_at}"
-        f"<b>From {comment_author_first_name} + {comment_author_last_name}"
+        f"<b>Form:</b> <code>{safe_form_public_url}</code>\n"
+        f"<b>Comment title:</b> <code>{safe_comment_title}</code>\n"
+        f"<b>Comment:</b> {safe_comment_text}\n"
+        f"<b>At:</b> {safe_created_at}\n"
+        f"<b>From:</b> {safe_author}"
     )
 
     try:
@@ -40,5 +48,4 @@ async def on_comment_created(event: dict) -> None:
     except Exception as e:
         LOGGER.warning(f"Something went wrong on notifying user: {e}")
         pass
-
 
