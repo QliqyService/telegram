@@ -101,9 +101,7 @@ However, breaking changes will always be introduced with a version change and/or
         return f"amqp://{self.RABBITMQ_USER}:{self.RABBITMQ_PASSWORD}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}?name={self.APP_NAME}"
 
     TELEGRAM_BOT_TOKEN: str
-    @property
-    def TELEGRAM_BOT_TOKEN(self):
-        return f"{self.TELEGRAM_BOT_TOKEN}"
+    TELEGRAM_BOT_URL: str | None = None
 
     @staticmethod
     def configure_logging():
