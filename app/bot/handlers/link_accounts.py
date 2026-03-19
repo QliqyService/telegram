@@ -47,6 +47,7 @@ async def process_link_code(message: Message, state: FSMContext):
     request_message = TGRPCRequest(
         telegram_id=str(message.from_user.id),
         code=str(code),
+        telegram_username=message.from_user.username,
     )
     LOGGER.info(f"Trying to send {request_message} to {queue_name}")
     LOGGER.info(f"RABBITMQ_URL = {SETTINGS.RABBITMQ_URL!r}")
