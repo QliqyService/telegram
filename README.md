@@ -1,6 +1,6 @@
 # Qliqy Telegram Service
 
-![CI](https://github.com/ilia2003/Qliqy/actions/workflows/telegram-build.yml/badge.svg)
+![CI](https://github.com/QliqyService/telegram/actions/workflows/telegram-build.yml/badge.svg)
 ![Status](https://img.shields.io/badge/status-active%20development-b4492f)
 
 Telegram integration service for Qliqy.
