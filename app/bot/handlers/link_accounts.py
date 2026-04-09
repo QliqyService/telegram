@@ -27,6 +27,26 @@ keyboard_to_cancel = ReplyKeyboardMarkup(
     one_time_keyboard=False,
     input_field_placeholder="Choose an option…")
 
+
+async def submit_account_linking(*, code: str, telegram_id: str, telegram_username: str | None) -> bool:
+    request_message = TGRPCRequest(
+        telegram_id=telegram_id,
+        code=code,
+        telegram_username=telegram_username,
+    )
+    LOGGER.info(f"Trying to send {request_message} to {queue_name}")
+    LOGGER.info(f"RABBITMQ_URL = {SETTINGS.RABBITMQ_URL!r}")
+    rpc_response = await Services.rabbitmq.request(
+        queue=queue_name,
+        message=request_message.model_dump(mode="json"),
+    )
+    if rpc_response is None:
+        LOGGER.error("❌ Can't get a response for account linking, aborting")
+        return False
+
+    response_data = TGRPCResponse.model_validate_json(rpc_response.body)
+    return response_data.ok == str(True)
+
 @router.message(F.text == "⚙️ Link accounts")
 async def link_account(message: Message, state: FSMContext):
     await message.answer(
@@ -44,26 +64,12 @@ async def cancel(message: Message, state: FSMContext):
 @router.message(LinkAccount.waiting_for_code)
 async def process_link_code(message: Message, state: FSMContext):
     code = message.text.strip()
-    request_message = TGRPCRequest(
-        telegram_id=str(message.from_user.id),
+    is_ok = await submit_account_linking(
         code=str(code),
+        telegram_id=str(message.from_user.id),
         telegram_username=message.from_user.username,
     )
-    LOGGER.info(f"Trying to send {request_message} to {queue_name}")
-    LOGGER.info(f"RABBITMQ_URL = {SETTINGS.RABBITMQ_URL!r}")
-    rpc_response = await Services.rabbitmq.request(
-        queue=queue_name,
-        message=request_message.model_dump(mode="json"),
-    )
-    if rpc_response is None:
-        LOGGER.error("❌ Can't get a response for account linking, aborting")
-        await message.answer(
-            "❌ Something went wrong. Try again later",
-            reply_markup=keyboard_default,
-        )
-        return
-    response_data = TGRPCResponse.model_validate_json(rpc_response.body)
-    if not response_data.ok:
+    if not is_ok:
         await message.answer(
             "❌ Something went wrong. Check your code or try again later",
             reply_markup=keyboard_default,
